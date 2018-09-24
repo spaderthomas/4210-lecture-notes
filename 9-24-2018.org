@@ -1,0 +1,48 @@
+- RPC and client-server systems
+- RPC is usually remote, but makes sense to talk about within a machine (calling
+  through protection domains)
+- LRPC :: lightweight remote procedure call
+- concerns:
+  - performance
+  - safety
+- in regular procedure calls above guaranteed at compile time, but in remote or
+  interprocess procedure calls, you can't just compile the arguments in a well
+  known location. the kernel has to go between them and put the arguments in a
+  place that the callee knows about -- ditto for returns.
+  - each protected procedure call takes 2 traps, copying, scheduling, and
+    context switching 
+	- all of this happens at runtime
+	- these are performance overheads
+- kernel doesn't have the same knowledge of the procedure as the compiler does;
+  kernel can't intelligently move things, but just ferry arguments and return
+  values 
+- marshalling :: using type information to package data in a way that the
+                 receiver can understand the data as more than just bytes
+- unmarshalling :: unpacking said data 
+- copying overhead for client->server:
+  1. client marshalls the data for the arguments into an RPC packet
+  2. copy into kernel buffer
+  3. copy into the server domain
+  4. server places arguments on the stack
+- binding :: run-time linking of variables between different places
+  - register your contents with a name server
+  - authenticate once
+  - kernel creates mappings in the client and server address spaces to a shared
+    memory location
+	- *A-stack* is this shared memory location
+  - expensive, but only happens once
+- client-stub and server-stub do the job of making sure both sides know where
+  arguments and returns are -- essentially the job of the compiler, but at
+  runtime
+- must handle pointers by copying the data it points to
+- client puts data on the A-stack, server copies data to the E-stack (the stack
+  it uses for executing code)
+  - this second copying is language-dependent. 
+- optimizations
+  - make the client thread's PCB point to the server thread's, so that the
+    server gets scheduled instead of the client while the client is making the
+    RPC
+  - use tricks for keeping the cache warm from OS design
+- with SMP, you can pre-load the server domain to keep the caches warm
+  (i.e. dedicate a server to a particular process so there is no context
+  switches for that processor's cache)
