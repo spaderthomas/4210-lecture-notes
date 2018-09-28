@@ -1,0 +1,40 @@
+- memory is most important determinant of performance (bottleneck)
+- *cache affinity*: making sure that the cache is warm
+  - general idea is to run things on the same processor they ran on previously 
+  - we can base our scheduling algorithms around this idea
+- scheduling policies
+  1. *FCFS* (first come, first serve)
+	 - ignores affinity, but does have better fairness
+	 - fair, but can lead to high variance
+  2. *fixed processor*
+	 - thread -> processor mapping is always fixed
+	 - good at heavy load; cache will probably be polluted anyway
+  3. *last processor*
+	 - favor the last processor the thread ran on
+  4. *minimum intervening*
+	 - for thread t_i, schedule on the processor which has had the fewest number
+       of threads between the last execution of t_i and now
+	 - good at light load
+  5. *mi + queue*
+	 - same as above, but takes into account the properties and contents of the
+       processor's ready queue
+- 2 and 3 are thread centric (focus on cache affinity)
+- 4 and 5 are processor-centric (focus on cache pollution)
+- performance metrics
+  - *throughput*
+	- how many threads execute per unit time
+  - *response time*
+	- latency. how long it takes to execute a thread from when you request it
+  - *variance*
+- ultimately, which scheduler you use depends on your workload
+- idle loop can help performance (e.g. waiting for a high affinity thread to
+  become ready to avoid polluting the cache)
+- *cache-aware scheduling*:
+  - ideas for scheduling threads on a multicore machine
+  - make sure that the working set of all threads on a certain processor is less
+    than that processor's total cache size
+- cache conscious decisions
+  - limit shared system data structures
+	- e.g. global locks -- forces everyone to update their cache when anyone
+      changes it
+  - keep memory accesses local when you can
